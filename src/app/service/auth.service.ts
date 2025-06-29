@@ -40,7 +40,7 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.BaseUrl}/me`);
+    return this.http.get<User>(`${this.BaseUrl}/current-user`);
   }
 
   getToken(): string | null {

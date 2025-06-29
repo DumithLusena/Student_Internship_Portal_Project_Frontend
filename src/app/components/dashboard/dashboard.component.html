@@ -1,0 +1,311 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        {{ currentUser?.role }} Dashboard
+                    </h1>
+                    <span class="ml-4 px-3 py-1 text-sm font-medium rounded-full" [ngClass]="currentUser?.role === UserRole.ADMIN ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                           currentUser?.role === UserRole.COMPANY ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                           'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'">
+                        {{ currentUser?.role }}
+                    </span>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">
+                        Welcome, {{ currentUser?.name }}
+                    </span>
+                    <button (click)="logout()"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center items-center h-64">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div *ngIf="!loading && currentUser?.role === UserRole.ADMIN" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ totalUsers }}</p>
+                        <p class="text-gray-600 dark:text-gray-400">Total Users</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 dark:bg-green-900">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ totalInternships }}</p>
+                        <p class="text-gray-600 dark:text-gray-400">Total Internships</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Users</h3>
+                    <button (click)="navigateToUsers()"
+                        class="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium">
+                        View All
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div *ngFor="let user of recentUsers" class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <div
+                                class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {{ user.name.charAt(0).toUpperCase() }}
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="user.role === UserRole.ADMIN ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                               user.role === UserRole.COMPANY ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                               'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'">
+                                {{ user.role }}
+                            </span>
+                            <button class="text-red-600 hover:text-red-700 dark:text-red-400 p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Dashboard -->
+    <div *ngIf="!loading && currentUser?.role === UserRole.COMPANY" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ pendingApplications }}</p>
+                        <p class="text-gray-600 dark:text-gray-400">Pending Internships</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex space-x-4 mb-8">
+            <button (click)="navigateToCreateInternship()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                Post New Internship
+            </button>
+            <button (click)="navigateToApplications()"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                View All Applications
+            </button>
+        </div>
+
+        <!-- Recent Applications -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recent Applications</h3>
+            </div>
+            <div class="p-6">
+                <div *ngIf="companyApplications.length === 0" class="text-center py-8">
+                    <p class="text-gray-500 dark:text-gray-400">No applications yet</p>
+                </div>
+                <div *ngIf="companyApplications.length > 0" class="space-y-4">
+                    <div *ngFor="let application of companyApplications.slice(0, 5)"
+                        class="flex justify-between items-center p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">{{ application.studentName }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ application.internshipTitle }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Applied: {{ application.appliedAt |
+                                date:'short' }}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="application.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                               application.status === 'ACCEPTED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                               application.status === 'REJECTED' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                               'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'">
+                                {{ application.status }}
+                            </span>
+                            <div *ngIf="application.status === 'PENDING' || application.status === 'UNDER_REVIEW'"
+                                class="flex space-x-1">
+                                <button class="text-green-600 hover:text-green-700 dark:text-green-400 p-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </button>
+                                <button class="text-red-600 hover:text-red-700 dark:text-red-400 p-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div *ngIf="!loading && currentUser?.role === UserRole.STUDENT" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Quick Actions -->
+        <div class="flex space-x-4 mb-8">
+            <button (click)="navigateToInternships()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                Apply Internships
+            </button>
+            <button (click)="navigateToApplications()"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                My Applications
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- My Applications -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">My Recent Applications</h3>
+                </div>
+                <div class="p-6">
+                    <div *ngIf="studentApplications.length === 0" class="text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400">No applications yet</p>
+                        <button (click)="navigateToInternships()"
+                            class="mt-4 text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium">
+                            Start applying to internships
+                        </button>
+                    </div>
+                    <div *ngIf="studentApplications.length > 0" class="space-y-4">
+                        <div *ngFor="let application of studentApplications.slice(0, 3)"
+                            class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ application.internshipTitle
+                                        }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ application.companyName }}
+                                    </p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                        Applied: {{ application.appliedAt | date:'short' }}
+                                    </p>
+                                </div>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full" [ngClass]="application.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' :
+                                 application.status === 'ACCEPTED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                                 application.status === 'REJECTED' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                                 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'">
+                                    {{ application.status }}
+                                </span>
+                            </div>
+                        </div>
+                        <div *ngIf="studentApplications.length > 3" class="text-center pt-4">
+                            <button (click)="navigateToApplications()"
+                                class="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium">
+                                View all {{ studentApplications.length }} applications
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Internships -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Latest Internships</h3>
+                </div>
+                <div class="p-6">
+                    <div *ngIf="availableInternships.length === 0" class="text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400">No internships available</p>
+                    </div>
+                    <div *ngIf="availableInternships.length > 0" class="space-y-4">
+                        <div *ngFor="let internship of availableInternships.slice(0, 3)"
+                            class="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                            (click)="navigateToInternships()">
+                            <div>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ internship.title }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ internship.companyName }}</p>
+                                <div class="flex items-center mt-2 space-x-4">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        {{ internship.location }}
+                                    </span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ internship.duration }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center pt-4">
+                            <button (click)="navigateToInternships()"
+                                class="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium">
+                                View all internships
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

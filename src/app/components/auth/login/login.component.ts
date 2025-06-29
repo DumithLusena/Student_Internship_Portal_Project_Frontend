@@ -38,13 +38,13 @@ export class LoginComponent {
           this.loading = false;
           switch (response.user.role) {
             case UserRole.ADMIN:
-              this.router.navigate(['/admin/dashboard']);
+              this.router.navigate(['/dashboard']);
               break;
             case UserRole.COMPANY:
-              this.router.navigate(['/company/dashboard']);
+              this.router.navigate(['/dashboard']);
               break;
             case UserRole.STUDENT:
-              this.router.navigate(['/student/dashboard']);
+              this.router.navigate(['/dashboard']);
               break;
           }
         },
